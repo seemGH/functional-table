@@ -1,0 +1,151 @@
+<div class="border-1 border-200 border-round-md">
+  <p-dialog header="Functional Table"
+            [closable]="true"
+            [modal]="true"
+            [draggable]="false"
+            (onHide)="fullScreenTable.set(false)"
+            [(visible)]="fullScreenTable">
+    <ng-container *ngTemplateOutlet="table"></ng-container>
+  </p-dialog>
+
+  <ng-template #table>
+    <p-table #dt
+             dataKey="_id"
+             [value]="loading() ? [] : users()"
+             [rows]="querySearchParams().limit"
+             [paginator]="true"
+             [globalFilterFields]="filterFields"
+             [rowHover]="true"
+             [responsiveLayout]="'stack'"
+             [rowsPerPageOptions]="[10, 25, 50]"
+             [breakpoint]="'768px'"
+             [sortField]="sortField()"
+             [sortOrder]="sortOrder()"
+             [lazy]="true"
+             [totalRecords]="totalRecords()"
+             (onLazyLoad)="onPage($event)"
+             (onSort)="onSort($event)">
+      <ng-template #caption>
+        <div class="flex flex-wrap gap-2 align-items-center justify-content-between">
+          <div class="flex align-items-center gap-2">
+            <p-badge severity="secondary" [value]="'Total: ' + totalRecords()"></p-badge>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <p-iconfield iconPosition="left">
+              <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+              <input pInputText
+                     type="text"
+                     placeholder="Search keyword"
+                     [ngModel]="searchSubject$ | async"
+                     (input)="onSearch($event)"/>
+            </p-iconfield>
+            <p-multiSelect display="chip"
+                           placeholder="Choose Columns"
+                           optionLabel="header"
+                           selectedItemsLabel="{0} columns selected"
+                           [options]="columns()"
+                           [(ngModel)]="selectedColumns"
+                           [style]="{ 'min-width': '200px' }">
+            </p-multiSelect>
+            <p-button icon="pi pi-filter-slash"
+                      [outlined]="true"
+                      [disabled]="selectedColumns().length === columns().length
+                      && !(searchSubject$ | async)
+                      && !querySearchParams().sortBy"
+                      (click)="onClear(dt)">
+            </p-button>
+            @if (!fullScreenTable()) {
+              <p-button icon="pi pi-window-maximize"
+                        [outlined]="true"
+                        (click)="fullScreenTable.set(false)">
+              </p-button>
+            }
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template #header>
+        <tr>
+          @for (col of selectedColumns(); track col.field) {
+            <th [pSortableColumn]="col.field === 'name' || filterFields.includes(col.field) ? col.field : ''">
+              {{ col.header }}
+              @if (col.field === 'name' || filterFields.includes(col.field)) {
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+              }
+            </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-user>
+        <tr>
+          @for (col of selectedColumns(); track col.field) {
+            <td>
+              @switch (col.field) {
+                @case ('name') {
+                  {{ user.name | fullName }}
+                }
+                @case ('isActive') {
+                  <p-badge [value]="user.isActive | statusLabel"
+                           [severity]="user.isActive ? 'success' : 'danger'">
+                  </p-badge>
+                }
+                @case ('tags') {
+                  <div class="flex flex-wrap gap-1">
+                    @for (tag of user.tags.slice(0, 3); let i = $index; track $index) {
+                      <p-tag [value]="tag"></p-tag>
+                    }
+                    @if (user.tags.length > 3) {
+                      <p-tag class="cursor-pointer"
+                             [value]="'...'"
+                             [pTooltip]="user.tags.slice(3).join(', ')">
+                      </p-tag>
+                    }
+                  </div>
+                }
+                @case ('company') {
+                  {{ user.company }}
+                }
+                @case ('balance') {
+                  {{ user.balance }}
+                }
+                @case ('email') {
+                  {{ user.email }}
+                }
+                @case ('address') {
+                  <span class="block text-overflow-ellipsis overflow-hidden white-space-nowrap w-15rem"
+                        [pTooltip]="user.address">
+                  {{ user.address }}
+                </span>
+                }
+                @case ('favoriteFruit') {
+                  {{ user.favoriteFruit | titlecase }}
+                }
+              }
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        @if (loading()) {
+          @for (i of [1, 2, 3, 4, 5]; track i) {
+            <tr>
+              @for (col of selectedColumns(); track col.field) {
+                <td>
+                  <p-skeleton [width]="getSkeletonWidth(col.field)" height="1.6rem"></p-skeleton>
+                </td>
+              }
+            </tr>
+          }
+        } @else {
+          <tr>
+            <td colspan="8">No customers found.</td>
+          </tr>
+        }
+      </ng-template>
+    </p-table>
+  </ng-template>
+
+  <ng-container *ngTemplateOutlet="table"></ng-container>
+</div>
