@@ -18,13 +18,13 @@ import {TagModule} from 'primeng/tag';
 import {ToastModule} from 'primeng/toast';
 import {Tooltip} from 'primeng/tooltip';
 
-import {FullNamePipe, StatusLabelPipe} from '../../pipes';
-import {UserService} from '../../services';
+import {FullNamePipe, StatusLabelPipe} from '../../core/pipes';
+import {UserService} from '../../core/services';
 
 import {Subject, Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 
-import {Column, QuerySearchParamsModel, UserModel} from '../../models';
+import {Column, QuerySearchParamsModel, UserModel} from '../../core/models';
 
 @Component({
   selector: 'app-user-table',

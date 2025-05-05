@@ -3,12 +3,11 @@ import {Component} from '@angular/core';
 import {Tag} from 'primeng/tag';
 import {Button} from 'primeng/button';
 
-import {UserTableComponent} from './core/components/user-table/user-table.component';
+import {UserTableComponent} from './components/user-table/user-table.component';
 
 @Component({
   selector: 'app-root',
   imports: [
-    UserTableComponent,
     UserTableComponent,
     Tag,
     Button,
